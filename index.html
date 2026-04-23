@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <link rel="icon" href="./faxian.ico">
+  <title>丹心不朽 · 书信时间轴 | 图文连线 · 点击播放</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    @font-face {
+      font-family: 'm';
+      src: url('data:font/truetype;charset=utf-8;base64,AAEAAAAQAQAABAAA') format('truetype');
+      font-display: swap;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'm', 'Segoe UI', 'PingFang SC', Roboto, '微软雅黑', sans-serif;
+      user-select: none;
+      list-style: none;
+      text-decoration: none;
+    }
+
+    body {
+      overflow-y: auto;
+      min-height: 100vh;
+      background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxkZWZzPjxsaW5lYXJHcmFkaWVudCBpZD0iZ3JlZW4iIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPjxzdG9wIG9mZnNldD0iMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiMxYTM4NWM7c3RvcC1vcGFjaXR5OjEiIC8+PHN0b3Agb2Zmc2V0PSIxMDAlIiBzdHlsZT0ic3RvcC1jb2xvcjojMjQ0YzZjO3N0b3Atb3BhY2l0eToxIiAvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JlZW4pIi8+PC9zdmc+') no-repeat center center fixed;
+      background-size: cover;
+    }
+
+    /* ===== 信封样式 ===== */
+    .envelope-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #1e150d;
+      background-image: radial-gradient(ellipse at 50% 40%, rgba(80, 50, 20, 0.4) 0%, rgba(20, 12, 8, 1) 80%);
+      transition: opacity 1s ease, visibility 1s ease;
+    }
+
+    .envelope-screen.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .dust {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background: rgba(210, 185, 140, 0.35);
+      border-radius: 50%;
+      animation: dustFloat linear infinite;
+    }
+
+    @keyframes dustFloat {
+      0% {
+        transform: translateY(0) translateX(0);
+        opacity: 0;
+      }
+
+      8% {
+        opacity: 1;
+      }
+
+      92% {
+        opacity: 1;
+      }
+
+      100% {
+        transform: translateY(-100vh) translateX(30px);
+        opacity: 0;
+      }
+    }
+
+    .envelope-wrapper {
+      position: relative;
+      width: 340px;
+      height: 240px;
+      perspective: 900px;
+    }
+
+    .envelope-body {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      height: 190px;
+      background: linear-gradient(160deg, #e8d5b0 0%, #d8c49c 40%, #c8b48a 100%);
+      border-radius: 4px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), inset 0 0 50px rgba(160, 130, 70, 0.15), inset 0 -3px 8px rgba(0, 0, 0, 0.05);
+      overflow: hidden;
+    }
+
+    .envelope-body::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 65%;
+      background:
+        linear-gradient(to bottom right, transparent 49.5%, rgba(150, 120, 70, 0.25) 49.5%, rgba(150, 120, 70, 0.25) 50.5%, transparent 50.5%),
+        linear-gradient(to bottom left, transparent 49.5%, rgba(150, 120, 70, 0.25) 49.5%, rgba(150, 120, 70, 0.25) 50.5%, transparent 50.5%);
+      clip-path: polygon(0 0, 100% 0, 50% 100%);
+      pointer-events: none;
+    }
+
+    .envelope-body::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 40%;
+      background:
+        linear-gradient(to top right, transparent 49.5%, rgba(150, 120, 70, 0.15) 49.5%, rgba(150, 120, 70, 0.15) 50.5%, transparent 50.5%),
+        linear-gradient(to top left, transparent 49.5%, rgba(150, 120, 70, 0.15) 49.5%, rgba(150, 120, 70, 0.15) 50.5%, transparent 50.5%);
+      clip-path: polygon(0 100%, 100% 100%, 50% 0%);
+      pointer-events: none;
+    }
+
+    .envelope-flap {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 130px;
+      transform-origin: top center;
+      transition: transform 0.9s cubic-bezier(0.6, -0.1, 0.4, 1.1);
+      z-index: 3;
+    }
+
+    .envelope-flap-front {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, #d4bf96 0%, #c8b08a 100%);
+      clip-path: polygon(0 0, 100% 0, 50% 100%);
+      backface-visibility: hidden;
+    }
+
+    .envelope-flap-back {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, #c4af86 0%, #b8a27a 100%);
+      clip-path: polygon(0 0, 100% 0, 50% 100%);
+      transform: rotateX(180deg);
+      backface-visibility: hidden;
+    }
+
+    .envelope-flap.open {
+      transform: rotateX(-180deg);
+    }
+
+    .envelope-stamp {
+      position: absolute;
+      top: 18px;
+      right: 22px;
+      width: 42px;
+      height: 50px;
+      border: 2px dashed rgba(155, 44, 44, 0.3);
+      border-radius: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
+    }
+
+    .envelope-stamp i {
+      color: rgba(155, 44, 44, 0.35);
+      font-size: 18px;
+    }
+
+    .envelope-seal-mark {
+      position: absolute;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%) rotate(-8deg);
+      width: 56px;
+      height: 56px;
+      border: 2.5px solid #9b2c2c;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 4;
+      opacity: 0.85;
+    }
+
+    .envelope-seal-mark span {
+      color: #9b2c2c;
+      font-family: 'Ma Shan Zheng', cursive;
+      font-size: 17px;
+      writing-mode: vertical-rl;
+      letter-spacing: 3px;
+    }
+
+    .letter-peek {
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 280px;
+      height: 60px;
+      background: linear-gradient(180deg, #faf3e0, #f0e4c8);
+      border-radius: 2px 2px 0 0;
+      opacity: 0;
+      transition: opacity 0.4s ease 0.5s, transform 0.6s ease 0.5s;
+      z-index: 1;
+      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .letter-peek.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(-15px);
+    }
+
+    .letter-peek-line {
+      height: 1px;
+      margin: 14px 20px 10px;
+      background: rgba(155, 44, 44, 0.12);
+    }
+
+    .open-btn {
+      margin-top: 52px;
+      padding: 14px 56px;
+      background: transparent;
+      border: 1.5px solid #9b2c2c;
+      color: #e0c9a0;
+      font-family: 'Ma Shan Zheng', cursive;
+      font-size: 22px;
+      letter-spacing: 10px;
+      cursor: pointer;
+      transition: all 0.4s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .open-btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: #9b2c2c;
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.4s ease;
+      z-index: -1;
+    }
+
+    .open-btn:hover {
+      color: #fdf8ed;
+    }
+
+    .open-btn:hover::before {
+      transform: scaleX(1);
+    }
+
+    .open-subtitle {
+      margin-top: 16px;
+      color: rgba(210, 185, 140, 0.4);
+      font-size: 13px;
+      letter-spacing: 3px;
+    }
+
+    /* 主内容初始隐藏 */
+    .main-content {
+      opacity: 0;
+      transition: opacity 1.2s ease 0.3s;
+    }
+
+    .main-content.visible {
+      opacity: 1;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    .shell {
+      width: 100vw;
+      position: relative;
+      padding: 40px 0 80px 0;
+      transition: 0.3s ease 0s;
+      background-attachment: fixed;
+      background-size: cover;
+    }
+
+    .shell .header {
+      width: 100%;
+      text-align: center;
+      margin-bottom: 40px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .shell .header .title {
+      color: #fff;
+      font-size: 46px;
+      font-weight: normal;
+      margin: 0;
+    }
+
+    .shell .header .subtitle {
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 16px;
+      letter-spacing: 5px;
+      margin: 10px 0 0 0;
+      font-weight: normal;
+    }
+
+    .shell .timeline {
+      display: flex;
+      margin: 0 auto;
+      flex-direction: column;
+      max-width: 1200px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .shell .timeline .item {
+      padding: 30px 0;
+      opacity: 0.3;
+      filter: blur(2px);
+      transition: 0.5s;
+      box-sizing: border-box;
+      width: calc(50% - 40px);
+      display: flex;
+      position: relative;
+      transform: translateY(0);
+      cursor: pointer;
+    }
+
+    .shell .timeline .item .content {
+      width: 100%;
+      pointer-events: none;
+    }
+
+    .shell .timeline .item .content .content-title {
+      font-weight: normal;
+      font-size: 46px;
+      margin: 0 0 10px 0;
+      transition: 0.4s;
+      padding: 0 10px;
+      box-sizing: border-box;
+      color: #fff;
+    }
+
+    .main-img {
+      width: 100%;
+      border-radius: 16px;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+      margin-bottom: 20px;
+      max-height: 260px;
+      object-fit: cover;
+    }
+
+    .plain-paragraph {
+      font-size: 16px;
+      line-height: 1.68;
+      color: rgba(255, 255, 255, 0.9);
+      margin-bottom: 14px;
+      text-align: justify;
+      position: relative;
+      transition: all 0.3s ease;
+      padding: 4px 8px;
+      border-radius: 12px;
+    }
+
+    .plain-paragraph.active-audio {
+      background: rgba(255, 217, 102, 0.4);
+      color: #fff;
+      box-shadow: 0 0 0 1px rgba(255, 217, 102, 0.6);
+    }
+
+    .img-line-wrapper {
+      position: relative;
+      margin-bottom: 14px;
+      transition: all 0.3s ease;
+      padding: 4px 8px;
+      border-radius: 12px;
+    }
+
+    .img-line-wrapper.active-audio {
+      background: rgba(255, 217, 102, 0.4);
+      box-shadow: 0 0 0 1px rgba(255, 217, 102, 0.6);
+    }
+
+    .img-line {
+      font-size: 16px;
+      line-height: 1.68;
+      color: rgba(255, 255, 255, 0.95);
+      text-align: justify;
+      background: rgba(0, 0, 0, 0.25);
+      padding: 12px 16px;
+      border-radius: 20px;
+      transition: 0.2s;
+      position: relative;
+      display: inline-block;
+      width: auto;
+      max-width: 100%;
+    }
+
+    .img-line:hover {
+      background: rgba(0, 0, 0, 0.4);
+    }
+
+    .link-dot {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      background: #ffd966;
+      border-radius: 50%;
+      margin-right: 10px;
+      box-shadow: 0 0 0 2px rgba(255, 217, 102, 0.3);
+      animation: pulse 1.5s infinite;
+      vertical-align: middle;
+    }
+
+    @keyframes pulse {
+      0% {
+        box-shadow: 0 0 0 0 rgba(255, 217, 102, 0.6);
+      }
+
+      70% {
+        box-shadow: 0 0 0 8px rgba(255, 217, 102, 0);
+      }
+
+      100% {
+        box-shadow: 0 0 0 0 rgba(255, 217, 102, 0);
+      }
+    }
+
+    .side-img {
+      position: absolute;
+      width: 180px;
+      top: 0;
+      opacity: 0;
+      transform: scale(0.85);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    .side-img img {
+      width: 100%;
+      border-radius: 14px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+      border: 2px solid rgba(255, 215, 0, 0.6);
+      transition: transform 0.3s, border-color 0.3s;
+      background: #2a2418;
+    }
+
+    .side-img img:hover {
+      transform: scale(1.03);
+      border-color: rgba(255, 215, 0, 1);
+    }
+
+    .shell .timeline .item:nth-child(odd) {
+      align-self: flex-start;
+    }
+
+    .shell .timeline .item:nth-child(odd) .side-img {
+      left: calc(100% + 40px);
+    }
+
+    .shell .timeline .item:nth-child(odd) .img-line-wrapper::after {
+      content: '';
+      position: absolute;
+      right: -45px;
+      top: 50%;
+      width: 45px;
+      height: 2px;
+      background: repeating-linear-gradient(90deg, #ffd966, #ffd966 8px, transparent 8px, transparent 16px);
+      transform: translateY(-50%);
+      pointer-events: none;
+    }
+
+    .shell .timeline .item:nth-child(even) {
+      align-self: flex-end;
+    }
+
+    .shell .timeline .item:nth-child(even) .side-img {
+      right: calc(100% + 40px);
+      left: auto;
+    }
+
+    .shell .timeline .item:nth-child(even) .img-line-wrapper::after {
+      content: '';
+      position: absolute;
+      left: -45px;
+      top: 50%;
+      width: 45px;
+      height: 2px;
+      background: repeating-linear-gradient(90deg, #ffd966, #ffd966 8px, transparent 8px, transparent 16px);
+      transform: translateY(-50%);
+      pointer-events: none;
+    }
+
+    .shell .timeline .item--active .side-img {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .side-img {
+      top: 50%;
+      transform: translateY(-50%) scale(0.85);
+    }
+
+    .shell .timeline .item--active .side-img {
+      transform: translateY(-50%) scale(1);
+    }
+
+    .shell .timeline .item::before {
+      content: attr(data-text);
+      letter-spacing: 3px;
+      position: absolute;
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 13px;
+      border-left: 2px solid rgba(255, 255, 255, 0.5);
+      top: 70%;
+      margin-top: -5px;
+      padding-left: 15px;
+      opacity: 0;
+      right: calc(-100% - 56px);
+      font-weight: 900;
+      letter-spacing: 5px;
+      white-space: nowrap;
+    }
+
+    .shell .timeline .item:nth-child(even)::before {
+      right: auto;
+      text-align: right;
+      left: calc(-100% - 56px);
+      padding-left: 0;
+      border-left: none;
+      border-right: 2px solid rgba(255, 255, 255, 0.5);
+      padding-right: 15px;
+    }
+
+    .shell .timeline .item--active {
+      opacity: 1;
+      transform: translateY(0);
+      filter: blur(0px);
+    }
+
+    .shell .timeline .item--active .content-title {
+      margin: 0 0 20px 0 !important;
+    }
+
+    .shell .timeline .item--active::before {
+      top: 50%;
+      transition: 0.3s all 0.2s;
+      opacity: 1;
+    }
+
+    .shell .timeline::before {
+      position: absolute;
+      left: 50%;
+      width: 2px;
+      height: 100%;
+      margin-left: -1px;
+      content: "";
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .shell::before {
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      content: "";
+      background: rgba(0, 0, 0, 0.45);
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .item {
+      position: relative;
+    }
+
+    .side-img {
+      pointer-events: auto;
+    }
+
+    .playing-indicator {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 32px;
+      height: 32px;
+      background: rgba(255, 217, 102, 0.9);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: 15;
+      pointer-events: none;
+    }
+
+    .item.playing .playing-indicator {
+      opacity: 1;
+      animation: pulse-ring 1.5s infinite;
+    }
+
+    @keyframes pulse-ring {
+      0% {
+        box-shadow: 0 0 0 0 rgba(255, 217, 102, 0.7);
+      }
+
+      70% {
+        box-shadow: 0 0 0 10px rgba(255, 217, 102, 0);
+      }
+
+      100% {
+        box-shadow: 0 0 0 0 rgba(255, 217, 102, 0);
+      }
+    }
+
+    .click-hint {
+      position: absolute;
+      bottom: 10px;
+      right: 15px;
+      font-size: 11px;
+      color: rgba(255, 217, 102, 0.6);
+      background: rgba(0, 0, 0, 0.4);
+      padding: 2px 8px;
+      border-radius: 20px;
+      pointer-events: none;
+      z-index: 15;
+    }
+
+    .item:nth-child(odd) .click-hint {
+      right: auto;
+      left: 15px;
+    }
+
+    .auto-scroll-active {
+      scroll-behavior: smooth;
+    }
+
+    @media (max-width: 850px) {
+      .shell .timeline .item {
+        width: calc(90% - 20px);
+        margin: 20px auto;
+      }
+
+      .shell .timeline .item:nth-child(even) {
+        align-self: center;
+      }
+
+      .shell .timeline::before {
+        left: 20px;
+      }
+
+      .side-img {
+        display: none;
+      }
+
+      .img-line-wrapper::after {
+        display: none !important;
+      }
+
+      .shell .timeline .item::before {
+        display: none;
+      }
+
+      .click-hint {
+        display: none;
+      }
+    }
+
+    ::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #1e1a2f;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #dbb46a;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- ===== 开屏信封层 ===== -->
+  <div id="envelopeScreen" class="envelope-screen">
+    <div id="dustContainer"></div>
+    <div class="envelope-wrapper" id="envelope">
+      <div class="letter-peek" id="letterPeek">
+        <div class="letter-peek-line"></div>
+        <div class="letter-peek-line" style="width:70%;margin-left:30px"></div>
+        <div class="letter-peek-line" style="width:50%;margin-left:30px"></div>
+      </div>
+      <div class="envelope-flap" id="envelopeFlap">
+        <div class="envelope-flap-front"></div>
+        <div class="envelope-flap-back"></div>
+      </div>
+      <div class="envelope-body">
+        <div class="envelope-stamp">
+          <i class="fas fa-star"></i>
+        </div>
+        <div class="envelope-seal-mark">
+          <span>润之</span>
+        </div>
+      </div>
+    </div>
+    <button class="open-btn" id="openBtn">启 封</button>
+    <p class="open-subtitle">点击开启一段穿越时空的书信</p>
+  </div>
+
+  <!-- ===== 主内容 ===== -->
+  <div id="mainContent" class="main-content">
+    <div class="shell" id="shell">
+      <div class="header">
+        <h3 class="subtitle">丹心不朽组 · 尺素情深</h3>
+        <h1 class="title">烽火家书 时代回响</h1>
+      </div>
+      <div class="timeline" id="timelineContainer"></div>
+    </div>
+  </div>
+
+  <script>
+    // 飘尘粒子
+    (function createDust() {
+      const container = document.getElementById('dustContainer');
+      if (!container) return;
+      for (let i = 0; i < 20; i++) {
+        const dust = document.createElement('div');
+        dust.className = 'dust';
+        dust.style.left = Math.random() * 100 + '%';
+        dust.style.top = (60 + Math.random() * 50) + '%';
+        dust.style.animationDuration = (8 + Math.random() * 12) + 's';
+        dust.style.animationDelay = Math.random() * 8 + 's';
+        dust.style.width = (1.5 + Math.random() * 2) + 'px';
+        dust.style.height = dust.style.width;
+        container.appendChild(dust);
+      }
+    })();
+
+    // 开屏交互
+    const envelopeScreen = document.getElementById('envelopeScreen');
+    const envelopeFlap = document.getElementById('envelopeFlap');
+    const letterPeek = document.getElementById('letterPeek');
+    const openBtn = document.getElementById('openBtn');
+    const mainContent = document.getElementById('mainContent');
+
+    let isOpened = false;
+
+    openBtn.addEventListener('click', () => {
+      if (isOpened) return;
+      isOpened = true;
+      envelopeFlap.classList.add('open');
+      setTimeout(() => { letterPeek.classList.add('show'); }, 400);
+      setTimeout(() => {
+        envelopeScreen.classList.add('hidden');
+        mainContent.classList.add('visible');
+        document.body.style.overflow = 'auto';
+      }, 1600);
+    });
+
+    openBtn.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        openBtn.click();
+      }
+    });
+
+    // LRC 歌词数据
+    const lrcData = [
+      { time: 0.01, text: "岸英、岸清二儿：很早以前" },
+      { time: 4.90, text: "接到岸英的长信，岸清的信，岸英寄来的照片本，" },
+      { time: 12.10, text: "单张相片。" },
+      { time: 14.60, text: "并且是几次的信与照片。" },
+      { time: 19.20, text: "我都未复，很对你们不起。" },
+      { time: 23.20, text: "知你们悬念。" },
+      { time: 25.70, text: "你们长进了，很欢喜的。" },
+      { time: 29.70, text: "岸英文理通顺，字也写得不坏。" },
+      { time: 34.30, text: "有进取的志气是很好的。" },
+      { time: 38.60, text: "惟有一事向你们建议，" },
+      { time: 41.00, text: "趁着年纪尚亲，" },
+      { time: 44.40, text: "多向自然科学学习，" },
+      { time: 47.30, text: "少谈些政治。" },
+      { time: 50.00, text: "政治是要谈的。" },
+      { time: 52.90, text: "但目前以潜心多习自然科学为宜，" },
+      { time: 58.10, text: "社会科学辅之。" },
+      { time: 61.60, text: "将来可倒置过来。" },
+      { time: 64.40, text: "以社会科学为主，" },
+      { time: 67.10, text: "自然科学为辅。" },
+      { time: 70.10, text: "总之注意科学。" },
+      { time: 72.30, text: "只有科学是真学问。" },
+      { time: 75.90, text: "将来用处无穷。" },
+      { time: 79.00, text: "人家恭维你抬举你。" },
+      { time: 82.10, text: "这有一样好处，就是鼓励你上进。" },
+      { time: 87.30, text: "但有一样坏处，就是易长自满之气。" },
+      { time: 92.80, text: "得意忘形，有不知脚踏实地，" },
+      { time: 97.70, text: "实事求是的危险。" },
+      { time: 100.80, text: "你们有你们的前程，或好或坏，" },
+      { time: 105.60, text: "决定于你们自己及你们的直接环境。" },
+      { time: 110.30, text: "我不想来干涉你们。" },
+      { time: 113.50, text: "我的意见，只当作建议。" },
+      { time: 117.30, text: "由你们自己考虑决定。" },
+      { time: 120.80, text: "总之我欢喜你们，望你们更好。" },
+      { time: 125.70, text: "岸英要我写诗，" },
+      { time: 128.30, text: "我一点诗兴也没有，因此写不出。" },
+      { time: 133.90, text: "关于寄书。" },
+      { time: 136.10, text: "前年我托西安林伯渠老同志寄了一大堆。" },
+      { time: 142.40, text: "给你们少年集团。" },
+      { time: 145.30, text: "听说没有收到，真是可惜。" },
+      { time: 149.90, text: "现再酌检一点寄上，大批的待后。" },
+      { time: 155.10, text: "我的身体今年差些，自己不满意自己。" },
+      { time: 160.60, text: "读书也少，因为颇忙。" },
+      { time: 164.70, text: "你们情形如何？" },
+      { time: 167.20, text: "甚以为念。" }
+    ];
+
+    const audioUrl = "家书音频.mp3";
+
+    // 书信数据
+    const timelineData = [
+      {
+        dataText: "《尺牍情深 · 见字如面》",
+        title: "1941.1.31",
+        mainImg: "./images/maoanyi.png.crdownload",
+        sections: [
+          { type: "text", content: "岸英、岸清二儿：很早以前" },
+          { type: "text", content: "接到岸英的长信，岸清的信，岸英寄来的照片本，单张相片，并且是几次的信与照片，我都未复，很对你们不起，知你们悬念。" },
+          { type: "img_line", text: "（毛泽东和毛岸英的合影）", imgSrc: "./images/合照.jpg", imgAlt: "家人珍贵合照" },
+          { type: "text", content: "你们长进了，很欢喜的。岸英文理通顺，字也写得不坏，有进取的志气，是很好的。惟有一事向你们建议，趁着年纪尚轻，多向自然科学学习，少谈些政治。政治是要谈的，但目前以潜心多习自然科学为宜，社会科学辅之。将来可倒置过来，以社会科学为主，自然科学为辅。总之注意科学，只有科学是真学问，将来用处无穷。人家恭维你抬举你，这有一样好处，就是鼓励你上进；但有一样坏处，就是易长自满之气，得意忘形，有不知脚踏实地、实事求是的危险。你们有你们的前程，或好或坏，决定于你们自己及你们的直接环境，我不想来干涉你们，我的意见，只当作建议，由你们自己考虑决定。总之我欢喜你们，望你们更好。" },
+          { type: "img_line", text: "（毛泽东肖像）", imgSrc: "./images/2.jpg", imgAlt: "毛泽东肖像" },
+          { type: "text", content: "岸英要我写诗，我一点诗兴也没有，因此写不出。关于寄书，前年我托西安林伯渠老同志寄了一大堆给你们少年集团，听说没有收到，真是可惜。现再酌检一点寄上，大批的待后。" },
+          { type: "text", content: "我的身体今年差些，自己不满意自己；读书也少，因为颇忙。你们情形如何？甚以为念。" },
+          { type: "img_line", text: "（1939年8月26日书信手迹）", imgSrc: "./images/信收到了.jpg", imgAlt: "书信手迹" }
+        ]
+      }
+    ];
+
+    const container = document.getElementById('timelineContainer');
+    const shellDiv = document.getElementById('shell');
+
+    let textElements = [];
+    let audio = null;
+    let textTimeMap = [];
+    let currentActiveElement = null;
+    let isPlaying = false;
+    let currentPlayingItem = null;
+    let autoScrollEnabled = true;
+    let scrollTimeout = null;
+
+    function handleImageError(img, fallback = "信笺留影") {
+      if (!img.src.includes('data:image')) {
+        img.src = `data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="200" height="150" viewBox="0 0 200 150"%3E%3Crect width="200" height="150" fill="%233b2e24"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" fill="%23e6c8a3" font-size="12"%3E📜 ${fallback}%3C/text%3E%3C/svg%3E`;
+      }
+    }
+
+    function normalizeText(str) {
+      return str.replace(/[，,。！？；：""''、\s]/g, '').trim();
+    }
+
+    function textMatchesLrc(paragraphText, lrcText) {
+      const normPara = normalizeText(paragraphText);
+      const normLrc = normalizeText(lrcText);
+      if (normPara.length === 0 || normLrc.length === 0) return false;
+      if (normPara.includes(normLrc) || normLrc.includes(normPara)) return true;
+      if (normLrc.length > 5 && normPara.indexOf(normLrc.substring(0, Math.min(8, normLrc.length))) !== -1) return true;
+      return false;
+    }
+
+    function buildTextTimeMap() {
+      const map = [];
+      for (let i = 0; i < textElements.length; i++) {
+        const element = textElements[i];
+        let paraText = element.textContent || element.innerText;
+        paraText = paraText.replace(/[（(][^）)]*[）)]/g, '').trim();
+        let matchedStartTime = null;
+        let matchedEndTime = null;
+        for (let j = 0; j < lrcData.length; j++) {
+          if (textMatchesLrc(paraText, lrcData[j].text)) {
+            matchedStartTime = lrcData[j].time;
+            matchedEndTime = (j + 1 < lrcData.length) ? lrcData[j + 1].time : lrcData[j].time + 3;
+            break;
+          }
+        }
+        if (paraText.includes("岸英、岸清二儿") && !matchedStartTime) {
+          matchedStartTime = 0.01;
+          matchedEndTime = lrcData[0] ? lrcData[0].time + 0.5 : 2;
+        }
+        if (matchedStartTime !== null) {
+          map.push({ element, startTime: matchedStartTime, endTime: matchedEndTime });
+        }
+      }
+      return map.sort((a, b) => a.startTime - b.startTime);
+    }
+
+    function scrollToElement(element) {
+      if (!autoScrollEnabled || !element) return;
+      if (scrollTimeout) clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(() => {
+        const rect = element.getBoundingClientRect();
+        window.scrollTo({ top: window.scrollY + rect.top - window.innerHeight / 3 - 100, behavior: 'smooth' });
+      }, 50);
+    }
+
+    function removeAllHighlights() {
+      textElements.forEach(el => el.classList.remove('active-audio'));
+    }
+
+    function stopPlayback() {
+      if (audio) { audio.pause(); audio.currentTime = 0; }
+      isPlaying = false;
+      if (currentPlayingItem) { currentPlayingItem.classList.remove('playing'); currentPlayingItem = null; }
+      removeAllHighlights();
+      currentActiveElement = null;
+      autoScrollEnabled = true;
+    }
+
+    function initAudio() {
+      audio = new Audio(audioUrl);
+      audio.preload = 'auto';
+      audio.addEventListener('timeupdate', () => {
+        if (!isPlaying) return;
+        const currentTime = audio.currentTime;
+        let activeItem = null;
+        for (let i = 0; i < textTimeMap.length; i++) {
+          if (currentTime >= textTimeMap[i].startTime && currentTime < textTimeMap[i].endTime) {
+            activeItem = textTimeMap[i];
+            break;
+          }
+        }
+        if (!activeItem) {
+          for (let i = textTimeMap.length - 1; i >= 0; i--) {
+            if (currentTime >= textTimeMap[i].startTime) { activeItem = textTimeMap[i]; break; }
+          }
+        }
+        if (activeItem && currentActiveElement !== activeItem.element) {
+          removeAllHighlights();
+          activeItem.element.classList.add('active-audio');
+          currentActiveElement = activeItem.element;
+          scrollToElement(activeItem.element);
+        }
+      });
+      audio.addEventListener('ended', () => {
+        isPlaying = false;
+        if (currentPlayingItem) { currentPlayingItem.classList.remove('playing'); currentPlayingItem = null; }
+        removeAllHighlights();
+        currentActiveElement = null;
+        autoScrollEnabled = true;
+      });
+      audio.addEventListener('error', () => console.warn('音频加载失败: ' + audioUrl));
+    }
+
+    function handleItemClick(itemDiv, index) {
+      const isOdd = (index % 2 === 0);
+      if (isOdd) {
+        if (currentPlayingItem === itemDiv && isPlaying) {
+          if (audio) audio.pause();
+          isPlaying = false;
+          currentPlayingItem.classList.remove('playing');
+          currentPlayingItem = null;
+          removeAllHighlights();
+          currentActiveElement = null;
+          autoScrollEnabled = true;
+        } else {
+          if (audio) audio.pause();
+          if (currentPlayingItem) currentPlayingItem.classList.remove('playing');
+          audio.currentTime = 0;
+          removeAllHighlights();
+          currentActiveElement = null;
+          autoScrollEnabled = true;
+          if (textElements.length > 0) setTimeout(() => scrollToElement(textElements[0]), 100);
+          audio.play().catch(e => console.log('播放失败:', e));
+          isPlaying = true;
+          currentPlayingItem = itemDiv;
+          currentPlayingItem.classList.add('playing');
+        }
+      } else {
+        stopPlayback();
+      }
+    }
+
+    function buildTimeline() {
+      container.innerHTML = '';
+      textElements = [];
+      timelineData.forEach((item, itemIdx) => {
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'item';
+        itemDiv.setAttribute('data-text', item.dataText);
+        const indicator = document.createElement('div');
+        indicator.className = 'playing-indicator';
+        indicator.innerHTML = '▶';
+        itemDiv.appendChild(indicator);
+        const hint = document.createElement('div');
+        hint.className = 'click-hint';
+        hint.innerHTML = (itemIdx % 2 === 0) ? '🎵 单击播放' : '⏹️ 单击停止';
+        itemDiv.appendChild(hint);
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'content';
+        const titleElem = document.createElement('h2');
+        titleElem.className = 'content-title';
+        titleElem.innerText = item.title;
+        contentDiv.appendChild(titleElem);
+        const mainImgElem = document.createElement('img');
+        mainImgElem.src = item.mainImg;
+        mainImgElem.alt = '主图影像';
+        mainImgElem.className = 'main-img';
+        mainImgElem.onerror = () => handleImageError(mainImgElem, '历史影像');
+        contentDiv.appendChild(mainImgElem);
+        const sideImages = [];
+        item.sections.forEach((section) => {
+          if (section.type === 'text') {
+            const p = document.createElement('div');
+            p.className = 'plain-paragraph';
+            p.innerText = section.content;
+            contentDiv.appendChild(p);
+            textElements.push(p);
+          } else if (section.type === 'img_line') {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'img-line-wrapper';
+            const lineDiv = document.createElement('div');
+            lineDiv.className = 'img-line';
+            const dotSpan = document.createElement('span');
+            dotSpan.className = 'link-dot';
+            lineDiv.appendChild(dotSpan);
+            lineDiv.appendChild(document.createTextNode(' ' + section.text));
+            wrapper.appendChild(lineDiv);
+            contentDiv.appendChild(wrapper);
+            textElements.push(wrapper);
+            const sideImgDiv = document.createElement('div');
+            sideImgDiv.className = 'side-img';
+            const img = document.createElement('img');
+            img.src = section.imgSrc;
+            img.alt = section.imgAlt || '信笺插图';
+            img.onerror = () => handleImageError(img, '珍贵影像');
+            sideImgDiv.appendChild(img);
+            itemDiv.appendChild(sideImgDiv);
+            sideImages.push({ wrapper, sideImg: sideImgDiv });
+          }
+        });
+        setTimeout(() => {
+          sideImages.forEach(({ wrapper, sideImg }) => {
+            if (wrapper && sideImg) {
+              const rect = wrapper.getBoundingClientRect();
+              const itemRect = itemDiv.getBoundingClientRect();
+              sideImg.style.top = (rect.top - itemRect.top + wrapper.offsetHeight / 2) + 'px';
+            }
+          });
+        }, 100);
+        itemDiv.appendChild(contentDiv);
+        itemDiv.addEventListener('click', (e) => { e.stopPropagation(); handleItemClick(itemDiv, itemIdx); });
+        container.appendChild(itemDiv);
+      });
+    }
+
+    buildTimeline();
+    textTimeMap = buildTextTimeMap();
+    initAudio();
+
+    // 滚动激活逻辑
+    let ticking = false;
+    function alignAllImages() {
+      document.querySelectorAll('#timelineContainer .item').forEach(item => {
+        const wrappers = item.querySelectorAll('.img-line-wrapper');
+        const sideImgs = item.querySelectorAll('.side-img');
+        if (wrappers.length === sideImgs.length) {
+          for (let i = 0; i < wrappers.length; i++) {
+            const rect = wrappers[i].getBoundingClientRect();
+            const itemRect = item.getBoundingClientRect();
+            sideImgs[i].style.top = (rect.top - itemRect.top + wrappers[i].offsetHeight / 2) + 'px';
+          }
+        }
+      });
+    }
+
+    function updateActiveItem() {
+      const itemsList = document.querySelectorAll('#timelineContainer .item');
+      if (!itemsList.length) return;
+      const scrollY = window.scrollY + 150;
+      let activeIndex = 0;
+      for (let i = 0; i < itemsList.length; i++) {
+        const item = itemsList[i];
+        const offsetTop = item.offsetTop;
+        const offsetBottom = offsetTop + item.offsetHeight;
+        if (scrollY >= offsetTop - 80 && scrollY <= offsetBottom - 80) { activeIndex = i; break; }
+        if (window.innerHeight + window.scrollY >= document.body.scrollHeight - 50) activeIndex = itemsList.length - 1;
+        if (scrollY < itemsList[0].offsetTop + 100) activeIndex = 0;
+        if (scrollY > itemsList[itemsList.length - 1].offsetTop + 200) activeIndex = itemsList.length - 1;
+      }
+      let bgImageUrl = '';
+      itemsList.forEach((it, idx) => {
+        if (idx === activeIndex) {
+          it.classList.add('item--active');
+          const mainPic = it.querySelector('.main-img');
+          if (mainPic && mainPic.src && !mainPic.src.includes('data:image/svg')) bgImageUrl = mainPic.src;
+        } else {
+          it.classList.remove('item--active');
+        }
+      });
+      if (bgImageUrl && shellDiv) shellDiv.style.backgroundImage = `url(${bgImageUrl})`;
+      alignAllImages();
+    }
+
+    window.addEventListener('scroll', () => {
+      if (!ticking) {
+        requestAnimationFrame(() => { updateActiveItem(); ticking = false; });
+        ticking = true;
+      }
+    });
+    window.addEventListener('resize', () => { updateActiveItem(); setTimeout(alignAllImages, 50); });
+    setTimeout(() => {
+      updateActiveItem();
+      const firstImg = document.querySelector('.item .main-img');
+      if (firstImg && firstImg.src) shellDiv.style.backgroundImage = `url(${firstImg.src})`;
+      alignAllImages();
+    }, 150);
+    updateActiveItem();
+  </script>
+</body>
+
+</html>

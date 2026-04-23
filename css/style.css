@@ -1,0 +1,23 @@
+@font-face {
+  font-family: 'm';
+  src: url(../ttf/阿里妈妈方圆体/AlimamaFangYuanTiVF-Thin.ttf);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'm', sans-serif;
+  user-select: none;
+  list-style: none;
+  text-decoration: none;
+}
+
+body {
+  /* display: flex; */
+  min-height: 100vh;
+  min-width: 100vw;
+  background: url(../images/2.jpg) no-repeat center center fixed;
+  background-size: cover;
+  overflow: hidden;
+}
